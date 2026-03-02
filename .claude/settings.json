@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -d \"$CLAUDE_PROJECT_DIR/.specify\" || echo 'WARNING: The .specify folder is missing. Run /project-bootstrap to set up spec-driven development.'"
+          }
+        ]
+      }
+    ]
+  }
+}
