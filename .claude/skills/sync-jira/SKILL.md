@@ -1,31 +1,36 @@
 ---
-name: sync-jira 
-description: how to sync specs, user stories and tasks to jira issues 
+name: sync-jira
+description: >
+  Sync local specs, stories, and tasks to Jira. Use whenever the user wants to
+  push changes to Jira, update Jira from local specs, or sync task status --
+  even if they just say "update jira" or "push to jira". Takes precedence over
+  invoking `/speckit.jira.sync-status` directly.
 ---
 
-# How to sync specs, user stories and tasks to jira issues
-
-## When to use
-
-Whenever the state of the spec, user stories and/or tasks should be sync to jira..
-
-IMPORTANT: This skill takes precedence over just invoking `/speckit.jira.sync-status`
+# Sync specs, stories and tasks to Jira
 
 ## Workflow
 
-1. If there are any semantical changes to the spec, stories or tasks (other than
-their completion status), use `/spec.jira.specstoissues` command to make sure
-Jira is up-to-date. Be as specific as possible when requesting the issue contents
-from Jira to prevent large responses.
+1. **Sync content changes** (if any). If the spec, stories, or tasks have
+   semantic changes (updated descriptions, added/removed tasks, renamed phases
+   -- not just completion status), run `/speckit.jira.specstoissues`. Detect
+   changes by comparing against `jira-mapping.json` timestamps or git history.
+   If unsure, ask the user. Be specific when requesting issue contents from
+   Jira to keep responses small.
 
-1. Use the `/speckit.jira.sync-status` command to sync the status of the tasks.
+2. **Sync task completion status.** Run `/speckit.jira.sync-status` to push
+   `[x]`/`[ ]` markers from tasks.md to Jira.
 
-1. check the following conditions in the exact order:
-   * if some, but not all, tasks of a user story are completed,
-     mark the user story as "in progress" in Jira.
-   * if all tasks of a user story are completed, mark the user
-     story as done also in Jira.
-   * if some, but not all, user stories of an epic are completed
-     or in progress, mark the epic as "in progress" in Jira.
-   * if all user stories of an epic are completed, mark the epic
-   as done also in Jira.
+3. **Roll up status to stories and epic.** The sync-status command only handles
+   individual tasks. Load the hierarchy from `specs/<spec-name>/jira-mapping.json`
+   and the MCP server name from `.specify/extensions/jira/jira-config.yml`
+   (`mcp_server` field, default `mcp-atlassian`), then:
+
+   - For each story: some tasks done → "In Progress"; all done → "Done";
+     none done → leave as-is.
+   - For the epic: some stories progressed → "In Progress"; all done → "Done";
+     none progressed → leave as-is.
+
+   To transition: call `jira_get_transitions` for the issue, find the matching
+   transition ID, then `jira_transition_issue`. If no matching transition exists
+   (already in target state), skip it.

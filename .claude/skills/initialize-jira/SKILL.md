@@ -1,36 +1,33 @@
 ---
 name: initialize-jira
-description: setup Jira integration in Speckit
+description: >
+  Set up or reconfigure Jira integration for spec-driven development. Use when
+  the user wants to connect to Jira, configure Jira tracking, or when a
+  speckit.jira.* command fails because jira-config.yml is missing.
 ---
 
 # Initialize Jira Integration
 
-## When to use
-
-* User wants to invoke some Jira related command in speckit (the command name starts with `speckit.jira`)
-but there is no `.specify/extensions/jira/jira-config.yml` file.
-
 ## Workflow
 
-1. Make sure you have available an MCP server for integration with Jira (there
-are more supported, `mcp-atlassian` ran using `uvx` works for example). If there
-is no such MCP server, ask the user to install one following the guide in
-<https://github.com/sooperset/mcp-atlassian> and re-run the command once it is
-configured.
+1. If `.specify/extensions/jira/jira-config.yml` already exists, tell the user
+   Jira is configured and ask if they want to reconfigure. If not, stop.
 
-2. Copy the `.specify/extensions/jira/jira-config.template.yml` to `.specify/extensions/jira/jira-config.yml`
+2. Check available MCP tools for Jira operations (tools like `jira_create_issue`,
+   `jira_search`). Common server names: `mcp-atlassian`, `atlassian`, `jira`.
+   If none found, tell the user to add one (e.g. `mcp-atlassian` via `uvx`)
+   and stop. Note the server name for step 3.
 
-3. Ask the user for the Jira project name that should be used and update
-the `project.key` property of the `jira-config.yml` file with it. Update
-the `mcp_server` field with the name of the actual MCP server used.
+3. Copy `.specify/extensions/jira/jira-config.template.yml` to
+   `.specify/extensions/jira/jira-config.yml`. Ask the user for their Jira
+   project key and update `project.key` and `mcp_server` in the config.
 
-4. Run the `speckit.jira.discover-fields` command.
+4. Run `/speckit.jira.discover-fields`. Then verify the configured issue types
+   (`epic_type`, `story_type`, `task_type`) exist and can form a hierarchy
+   (epic > story > task). If not, suggest alternatives from the available types.
 
-5. Additionally, make sure that the detected Jira issue types for epics, stories and tasks can
-form the hierarchy in Jira. If not try to find equivalent issue types that can.
+5. Present the config to the user for review. Confirm project key, issue types,
+   relationships, and status mappings look correct.
 
-6. Ask the user to review the `.specify/extension/jira/jira-config.yml` file and
-make sure it correctly maps the all the fields and statuses to the Jira project.
-
-7. Inform the user that the Jira integration setup is complete and that they can
-start using it.
+6. Tell the user Jira is ready and they can use `/speckit.jira.specstoissues`,
+   `/speckit.jira.sync-status`, or the `sync-jira` skill.

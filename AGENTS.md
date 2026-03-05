@@ -1,4 +1,4 @@
-# Sandbox AI Workflow Development Guidelines
+# SDD playground
 
 This project uses speckit and Spec driven development (SDD) to have an efficient
 interface between the humans and AIs.

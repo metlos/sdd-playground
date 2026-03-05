@@ -1,40 +1,31 @@
 ---
 name: update-feature
-description: The workflow to follow when the user wants to update a feature spec.
+description: >
+  Update an existing feature spec. Use when the user wants to change, revise,
+  or refine a feature that already has a spec — e.g. "change the auth approach",
+  "add a field to the spec", "revise the design", "update the requirements".
+  Also triggers for corrections or scope changes to in-progress features.
 ---
 
 # Update an existing feature
 
-## When to use
+1. Check the current branch name. If `specs/<branch-name>` exists, that's the
+   active spec. If not, stop consulting this skill and handle the request
+   directly.
 
-* When the user wants to make changes to an already existing feature.
+2. Run `/speckit.clarify`, passing a concise summary of what the user wants
+   to update.
 
-## Workflow
+3. If changes were made and `<spec-dir>/plan.md` exists, check whether the
+   plan needs updating. If yes, run `/speckit.plan` with a summary of the
+   needed changes.
 
-1. Check the name of the current branch. If there is directory called `specs/<branch-name>`,
-then that's the spec that is being worked on. If there is no directory like
-that, skip the rest of the steps and proceed answering user's request without
-consulting this skill.
+4. If changes were made and `<spec-dir>/tasks.md` exists, run `/speckit.tasks`.
 
-1. Use the `speckit.clarify` command. Formulate concisely what the user wants
-to update and pass this formulation as the argument to the command.
+5. If any spec artifacts changed, ask the user whether to sync to Jira. If
+   yes, run `/speckit.jira.specstoissues`.
 
-1. If the above steps produced any changes and if the spec has an implementation
-plan (`<spec-dir>/plan.md` file), figure out whether that plan needs updates,
-too. If yes, run the `speckit.plan` command, describing what needs to be changed
-(concisely) as the argument to it. If not, proceed to the next step.
+6. If implementation already exists, run `/speckit.implement` to align the
+   code with the updated spec.
 
-1. If the above steps produced any changes and if the spec has tasks
-(`<spec-dir>/tasks.md` file), run the `speckit.tasks` command. If not, proceed
-to the next step.
-
-1. If any of the above steps caused any changes to the spec, ask the user
-whether they want to reflect those changes in Jira. If yes, run the `speckit.jira.specstoissues`
-command. If not, proceed to the next step.
-
-1. If there already is any implementation of the spec, make sure the implementation
-corresponds to the changes made above by running `speckit.implement`. If there's no
-implementation, proceed to the next step.
-
-1. Finally, ask the user if they want the changes committed. If yes, commit to
-the spec branch. If not, don't commit.
+7. Ask the user if they want to commit the changes.
